@@ -205,6 +205,331 @@ select.input-field{appearance:none;background-image:url("data:image/svg+xml,%3Cs
 <body>
 
 <div id="app">
+  <div class="app-header">
+    <div>
+      <div class="logo">GinecoPro</div>
+      <div class="subtitle">Prontuário Digital · POC v0.1</div>
+    </div>
+    <div class="header-right">
+      <div class="patient-chip" id="headerPatient" onclick="showTab('pacientes')">Selecionar paciente</div>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showTab('consulta')" id="tab-consulta">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6M9 8h6M9 16h4"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
+      Consulta
+    </div>
+    <div class="nav-tab" onclick="showTab('pacientes')" id="tab-pacientes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4"/><circle cx="17" cy="17" r="4"/><path d="M15 17h4M17 15v4"/></svg>
+      Pacientes
+    </div>
+    <div class="nav-tab" onclick="showTab('historico')" id="tab-historico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+      Histórico
+    </div>
+    <div class="nav-tab" onclick="showTab('receita')" id="tab-receita">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+      Receita
+    </div>
+    <div class="nav-tab" onclick="showTab('exames')" id="tab-exames">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
+      Exames
+    </div>
+  </div>
+
+  <div class="screen active" id="screen-consulta">
+
+    <div class="rec-widget">
+      <div class="rec-btn" id="recBtn" onclick="toggleRecording()">
+        <svg id="recIcon" viewBox="0 0 24 24" fill="white"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" stroke="white" stroke-width="2" fill="none"/></svg>
+      </div>
+      <div class="rec-status" id="recStatus">Toque para gravar a anamnese</div>
+      <div class="rec-time" id="recTime">0:00</div>
+      <div class="rec-hint" id="recHint">Web Speech API · gratuito · funciona no Chrome</div>
+    </div>
+
+    <div class="sec-head">
+      <span class="sec-title">Transcrição</span>
+      <div class="flex gap8">
+        <button class="btn-sm outline" onclick="clearTranscript()">Limpar</button>
+        <button class="btn-sm" onclick="analyzeWithAI()">✦ Analisar com IA</button>
+      </div>
+    </div>
+    <div class="transcript-box" id="transcriptBox">
+      <span class="placeholder">A transcrição do áudio aparecerá aqui em tempo real...</span>
+    </div>
+
+    <div class="sec-head mt8">
+      <span class="sec-title">Anotações da médica</span>
+    </div>
+    <textarea class="input-field" id="doctorNotes" placeholder="Observações, achados ao exame físico, impressão clínica..." rows="3"></textarea>
+
+    <div id="aiPanel" style="display:none">
+      <div class="sec-head mt8">
+        <span class="sec-title">Estruturação IA</span>
+        <button class="btn-sm outline" onclick="document.getElementById('aiPanel').style.display='none'">×</button>
+      </div>
+      <div class="ai-panel">
+        <div class="ai-label">Análise Automática</div>
+        <div id="aiLoading" class="loading" style="display:none">
+          <div class="dot-spin"><span></span><span></span><span></span></div>
+          Processando com Claude...
+        </div>
+        <div id="aiContent"></div>
+      </div>
+    </div>
+
+    <div class="flex gap8 mt12">
+      <button class="full-btn secondary" style="flex:1" onclick="showTab('exames')">📎 Exames</button>
+      <button class="full-btn primary" style="flex:1" onclick="saveConsulta()">💾 Salvar consulta</button>
+    </div>
+    <div class="bottom-safe"></div>
+  </div>
+
+  <div class="screen" id="screen-pacientes">
+    <div class="sec-head">
+      <span class="sec-title">Pacientes</span>
+      <button class="btn-sm" onclick="openNewPatient()">+ Nova</button>
+    </div>
+
+    <input class="input-field" type="search" placeholder="Buscar paciente..." id="patientSearch" oninput="filterPatients(this.value)" style="margin-bottom:12px">
+
+    <div id="patientList"></div>
+    <div class="bottom-safe"></div>
+  </div>
+
+  <div class="screen" id="screen-historico">
+    <div class="sec-head">
+      <span class="sec-title" id="histTitle">Histórico clínico</span>
+    </div>
+    <div id="histContent">
+      <div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+        <p>Selecione uma paciente para ver o histórico</p>
+      </div>
+    </div>
+    <div class="bottom-safe"></div>
+  </div>
+
+  <div class="screen" id="screen-receita">
+    <div class="sec-head">
+      <span class="sec-title">Nova receita</span>
+      <button class="btn-sm" onclick="addMedItem()">+ Medicamento</button>
+    </div>
+
+    <div class="input-row">
+      <div class="input-group">
+        <label class="input-label">Tipo</label>
+        <select class="input-field" id="rxType">
+          <option>Receita Simples</option>
+          <option>Receita Especial Branca</option>
+          <option>Receita Azul (C2)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Data</label>
+        <input type="date" class="input-field" id="rxDate">
+      </div>
+    </div>
+
+    <div id="medItems"></div>
+
+    <div class="divider"></div>
+
+    <div class="sec-head">
+      <span class="sec-title">Pré-visualização</span>
+      <button class="btn-sm green" onclick="printRx()">🖨 Imprimir</button>
+    </div>
+    <div id="rxPreview"></div>
+
+    <button class="full-btn secondary mt12" onclick="aiSuggestMeds()">✦ Sugerir medicamentos com IA</button>
+    <div class="bottom-safe"></div>
+  </div>
+
+  <div class="screen" id="screen-exames">
+    <div class="sec-head">
+      <span class="sec-title">Exames e arquivos</span>
+    </div>
+
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="handleDrag(event)" ondrop="handleDrop(event)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <p><strong>Toque para enviar</strong> laudos, exames, imagens</p>
+      <p>ou arraste e solte aqui</p>
+    </div>
+    <input type="file" id="fileInput" style="display:none" multiple accept="image/*,.pdf,.jpg,.png" onchange="handleFiles(this.files)">
+
+#app{display:flex;flex-direction:column;height:100%;max-width:520px;margin:0 auto;background:var(--card);box-shadow:0 0 40px rgba(0,0,0,.12)}
+
+/* ── HEADER ── */
+.app-header{background:var(--teal);color:white;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:100}
+.app-header .logo{font-family:var(--mono);font-size:1.15rem;font-weight:600;color:var(--teal-l);letter-spacing:-.01em}
+.app-header .subtitle{font-size:.7rem;color:var(--teal-xl);margin-top:1px;font-weight:300}
+.header-right{display:flex;align-items:center;gap:10px}
+.patient-chip{background:rgba(46,184,174,.18);border:1px solid var(--teal-l);border-radius:20px;padding:4px 10px;font-size:.72rem;color:var(--teal-xl);cursor:pointer;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── NAV TABS ── */
+.nav-tabs{display:flex;border-bottom:2px solid var(--border);background:var(--card);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nav-tab{flex:1;min-width:60px;padding:10px 6px 8px;text-align:center;font-size:.68rem;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;white-space:nowrap}
+.nav-tab.active{color:var(--teal-m);border-bottom-color:var(--teal-l)}
+.nav-tab svg{width:18px;height:18px}
+
+/* ── SCREENS ── */
+.screen{display:none;flex-direction:column;flex:1;overflow-y:auto;padding:16px}
+.screen.active{display:flex}
+
+/* ── SECTION HEADERS ── */
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sec-title{font-size:.65rem;font-family:var(--mono);font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-m)}
+.btn-sm{background:var(--teal);color:white;border:none;border-radius:6px;padding:6px 12px;font-size:.75rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:var(--sans)}
+.btn-sm:active{opacity:.8}
+.btn-sm.outline{background:transparent;border:1.5px solid var(--teal-m);color:var(--teal-m)}
+.btn-sm.rose{background:var(--rose)}
+.btn-sm.amber{background:var(--amber)}
+.btn-sm.green{background:var(--green)}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.card-row{display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:.88rem;font-weight:600;color:var(--ink);margin-bottom:2px}
+.card-sub{font-size:.75rem;color:var(--muted)}
+.card-tag{font-family:var(--mono);font-size:.62rem;padding:2px 7px;border-radius:3px;font-weight:600}
+.tag-active{background:#E0F5F3;color:var(--teal-m)}
+.tag-warn{background:#FEF3CD;color:#7A5000}
+.tag-rose{background:#FEECEC;color:var(--rose)}
+.tag-green{background:#E6F4ED;color:var(--green)}
+
+/* ── INPUTS ── */
+.input-group{margin-bottom:12px}
+.input-label{font-size:.72rem;font-weight:500;color:var(--muted);margin-bottom:4px;display:block}
+.input-field{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:.88rem;font-family:var(--sans);color:var(--ink);background:white;outline:none;transition:border-color .2s}
+.input-field:focus{border-color:var(--teal-l)}
+textarea.input-field{resize:vertical;min-height:80px;line-height:1.5}
+select.input-field{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7878' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ── RECORDING WIDGET ── */
+.rec-widget{background:linear-gradient(135deg,var(--teal) 0%,var(--teal-m) 100%);border-radius:var(--radius);padding:20px;color:white;text-align:center;margin-bottom:14px}
+.rec-btn{width:72px;height:72px;border-radius:50%;border:3px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 12px;transition:all .2s;backdrop-filter:blur(4px)}
+.rec-btn:active{transform:scale(.93)}
+.rec-btn.recording{background:var(--rose);border-color:rgba(255,255,255,.6);animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(184,68,68,.5)}50%{box-shadow:0 0 0 12px rgba(184,68,68,0)}}
+.rec-btn svg{width:28px;height:28px}
+.rec-status{font-size:.8rem;color:rgba(255,255,255,.75);margin-bottom:6px}
+.rec-time{font-family:var(--mono);font-size:1.4rem;font-weight:600;color:white}
+.rec-hint{font-size:.68rem;color:rgba(255,255,255,.5);margin-top:8px}
+
+/* ── TRANSCRIPT BOX ── */
+.transcript-box{background:#F8FAFA;border:1.5px solid var(--border);border-radius:8px;padding:12px;font-size:.84rem;line-height:1.6;color:var(--ink);min-height:80px;margin-bottom:10px;white-space:pre-wrap;position:relative}
+.transcript-box .placeholder{color:var(--muted);font-style:italic}
+.transcript-live{border-color:var(--teal-l);background:#F0FAFA}
+
+/* ── AI PANEL ── */
+.ai-panel{background:linear-gradient(135deg,#F0F8F7,#E8F5F4);border:1.5px solid var(--teal-xl);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.ai-label{font-family:var(--mono);font-size:.62rem;font-weight:600;color:var(--teal-m);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.ai-label::before{content:'✦';color:var(--teal-l)}
+.ai-field{margin-bottom:8px}
+.ai-field-label{font-size:.68rem;font-weight:600;color:var(--muted);margin-bottom:2px;text-transform:uppercase;letter-spacing:.06em}
+.ai-field-value{font-size:.84rem;color:var(--ink);line-height:1.5}
+.soap-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.soap-item{background:white;border-radius:6px;padding:8px;border:1px solid var(--border)}
+.soap-letter{font-family:var(--mono);font-size:.9rem;font-weight:600;color:var(--teal-m);margin-bottom:2px}
+.soap-text{font-size:.78rem;color:var(--ink);line-height:1.4}
+
+/* ── LOADING ── */
+.loading{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.8rem}
+.dot-spin{display:inline-flex;gap:3px}
+.dot-spin span{width:5px;height:5px;border-radius:50%;background:var(--teal-l);animation:bounce .9s infinite}
+.dot-spin span:nth-child(2){animation-delay:.15s}
+.dot-spin span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+/* ── PATIENT LIST ── */
+.patient-item{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;transition:border-color .15s,background .15s}
+.patient-item:active,.patient-item.selected{border-color:var(--teal-l);background:#F0FAFA}
+.patient-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--teal-m),var(--teal-l));display:flex;align-items:center;justify-content:center;font-weight:600;color:white;font-size:.95rem;flex-shrink:0}
+.patient-info{flex:1;min-width:0}
+.patient-name{font-size:.9rem;font-weight:600;color:var(--ink)}
+.patient-meta{font-size:.73rem;color:var(--muted);margin-top:1px}
+.patient-arrow{color:var(--muted)}
+
+/* ── HISTORY TIMELINE ── */
+.timeline-item{display:flex;gap:12px;margin-bottom:14px}
+.tl-dot-col{display:flex;flex-direction:column;align-items:center}
+.tl-dot{width:10px;height:10px;border-radius:50%;background:var(--teal-l);flex-shrink:0;margin-top:4px}
+.tl-line{width:2px;background:var(--border);flex:1;margin-top:4px}
+.tl-content{flex:1;padding-bottom:6px}
+.tl-date{font-size:.68rem;color:var(--muted);font-family:var(--mono);margin-bottom:3px}
+.tl-title{font-size:.84rem;font-weight:600;color:var(--ink);margin-bottom:3px}
+.tl-body{font-size:.78rem;color:#444;line-height:1.45}
+.tl-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+
+/* ── RECEIPT / PRESCRIPTION ── */
+.rx-block{border:1.5px dashed var(--border);border-radius:8px;padding:14px;margin-bottom:10px}
+.rx-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.rx-clinic{font-size:.78rem;color:var(--muted);line-height:1.5}
+.rx-clinic strong{font-size:.88rem;color:var(--ink);display:block}
+.rx-type{font-family:var(--mono);font-size:.65rem;font-weight:600;color:white;background:var(--teal-m);padding:3px 8px;border-radius:3px}
+.rx-item{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+.rx-num{font-family:var(--mono);font-size:.72rem;font-weight:600;color:var(--teal-m);width:16px;flex-shrink:0;padding-top:1px}
+.rx-drug{font-size:.84rem;font-weight:600;color:var(--ink);margin-bottom:1px}
+.rx-posology{font-size:.78rem;color:#444}
+.rx-footer{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-end}
+.rx-sig{font-size:.72rem;color:var(--muted);text-align:center}
+.rx-sig-line{width:120px;height:1px;background:var(--border);margin:0 auto 3px}
+
+/* ── FILE UPLOAD ── */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:24px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--teal-l);background:#F0FAFA}
+.upload-zone svg{color:var(--muted);margin-bottom:8px}
+.upload-zone p{font-size:.82rem;color:var(--muted)}
+.upload-zone strong{color:var(--teal-m)}
+.file-list{margin-top:10px}
+.file-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#F8FAFA;border:1px solid var(--border);border-radius:6px;margin-bottom:6px}
+.file-icon{font-size:1.1rem}
+.file-name{font-size:.8rem;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-size{font-size:.7rem;color:var(--muted);font-family:var(--mono)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--teal);color:white;padding:10px 20px;border-radius:20px;font-size:.82rem;font-weight:500;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:white;border-radius:16px 16px 0 0;padding:20px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:14px}
+
+/* ── BOTTOM NAV (mobile) ── */
+.bottom-safe{height:env(safe-area-inset-bottom,0px)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ── UTILITIES ── */
+.flex{display:flex}.gap8{gap:8px}.gap6{gap:6px}.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+.full-btn{width:100%;padding:12px;border-radius:8px;font-size:.92rem;font-weight:600;border:none;cursor:pointer;font-family:var(--sans)}
+.full-btn.primary{background:var(--teal);color:white}
+.full-btn.secondary{background:var(--bg);border:1.5px solid var(--border);color:var(--ink)}
+.full-btn:active{opacity:.85}
+.divider{height:1px;background:var(--border);margin:14px 0}
+.empty{text-align:center;padding:32px 20px;color:var(--muted)}
+.empty svg{width:40px;height:40px;margin-bottom:10px;opacity:.35}
+.empty p{font-size:.84rem}
+.badge-count{background:var(--rose);color:white;border-radius:10px;font-size:.6rem;font-weight:700;padding:1px 5px;font-family:var(--mono)}
+
+/* ── RESPONSIVE ── */
+@media(min-width:540px){
+  #app{border-left:1px solid var(--border);border-right:1px solid var(--border)}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
   <!-- HEADER -->
   <div class="app-header">
     <div>
