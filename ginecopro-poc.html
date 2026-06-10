@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0D3D3A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>GinecoPro</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+  --teal:    #0D3D3A;
+  --teal-m:  #1A6B65;
+  --teal-l:  #2EB8AE;
+  --teal-xl: #7FD9D4;
+  --bg:      #F2F4F4;
+  --card:    #FFFFFF;
+  --border:  #DDE2E2;
+  --ink:     #1A1F1F;
+  --muted:   #6B7878;
+  --rose:    #B84444;
+  --amber:   #B87A00;
+  --green:   #2A7A4A;
+  --red-bg:  #FEF0F0;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'Inter', sans-serif;
+  --radius: 10px;
+  --shadow: 0 2px 12px rgba(13,61,58,.10);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15px}
+
+/* ── APP SHELL ── */
+#app{display:flex;flex-direction:column;height:100%;max-width:520px;margin:0 auto;background:var(--card);box-shadow:0 0 40px rgba(0,0,0,.12)}
+
+/* ── HEADER ── */
+.app-header{background:var(--teal);color:white;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:100}
+.app-header .logo{font-family:var(--mono);font-size:1.15rem;font-weight:600;color:var(--teal-l);letter-spacing:-.01em}
+.app-header .subtitle{font-size:.7rem;color:var(--teal-xl);margin-top:1px;font-weight:300}
+.header-right{display:flex;align-items:center;gap:10px}
+.patient-chip{background:rgba(46,184,174,.18);border:1px solid var(--teal-l);border-radius:20px;padding:4px 10px;font-size:.72rem;color:var(--teal-xl);cursor:pointer;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── NAV TABS ── */
+.nav-tabs{display:flex;border-bottom:2px solid var(--border);background:var(--card);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nav-tab{flex:1;min-width:60px;padding:10px 6px 8px;text-align:center;font-size:.68rem;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;white-space:nowrap}
+.nav-tab.active{color:var(--teal-m);border-bottom-color:var(--teal-l)}
+.nav-tab svg{width:18px;height:18px}
+
+/* ── SCREENS ── */
+.screen{display:none;flex-direction:column;flex:1;overflow-y:auto;padding:16px}
+.screen.active{display:flex}
+
+/* ── SECTION HEADERS ── */
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sec-title{font-size:.65rem;font-family:var(--mono);font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-m)}
+.btn-sm{background:var(--teal);color:white;border:none;border-radius:6px;padding:6px 12px;font-size:.75rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:var(--sans)}
+.btn-sm:active{opacity:.8}
+.btn-sm.outline{background:transparent;border:1.5px solid var(--teal-m);color:var(--teal-m)}
+.btn-sm.rose{background:var(--rose)}
+.btn-sm.amber{background:var(--amber)}
+.btn-sm.green{background:var(--green)}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.card-row{display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:.88rem;font-weight:600;color:var(--ink);margin-bottom:2px}
+.card-sub{font-size:.75rem;color:var(--muted)}
+.card-tag{font-family:var(--mono);font-size:.62rem;padding:2px 7px;border-radius:3px;font-weight:600}
+.tag-active{background:#E0F5F3;color:var(--teal-m)}
+.tag-warn{background:#FEF3CD;color:#7A5000}
+.tag-rose{background:#FEECEC;color:var(--rose)}
+.tag-green{background:#E6F4ED;color:var(--green)}
+
+/* ── INPUTS ── */
+.input-group{margin-bottom:12px}
+.input-label{font-size:.72rem;font-weight:500;color:var(--muted);margin-bottom:4px;display:block}
+.input-field{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:.88rem;font-family:var(--sans);color:var(--ink);background:white;outline:none;transition:border-color .2s}
+.input-field:focus{border-color:var(--teal-l)}
+textarea.input-field{resize:vertical;min-height:80px;line-height:1.5}
+select.input-field{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7878' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ── RECORDING WIDGET ── */
+.rec-widget{background:linear-gradient(135deg,var(--teal) 0%,var(--teal-m) 100%);border-radius:var(--radius);padding:20px;color:white;text-align:center;margin-bottom:14px}
+.rec-btn{width:72px;height:72px;border-radius:50%;border:3px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 12px;transition:all .2s;backdrop-filter:blur(4px)}
+.rec-btn:active{transform:scale(.93)}
+.rec-btn.recording{background:var(--rose);border-color:rgba(255,255,255,.6);animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(184,68,68,.5)}50%{box-shadow:0 0 0 12px rgba(184,68,68,0)}}
+.rec-btn svg{width:28px;height:28px}
+.rec-status{font-size:.8rem;color:rgba(255,255,255,.75);margin-bottom:6px}
+.rec-time{font-family:var(--mono);font-size:1.4rem;font-weight:600;color:white}
+.rec-hint{font-size:.68rem;color:rgba(255,255,255,.5);margin-top:8px}
+
+/* ── TRANSCRIPT BOX ── */
+.transcript-box{background:#F8FAFA;border:1.5px solid var(--border);border-radius:8px;padding:12px;font-size:.84rem;line-height:1.6;color:var(--ink);min-height:80px;margin-bottom:10px;white-space:pre-wrap;position:relative}
+.transcript-box .placeholder{color:var(--muted);font-style:italic}
+.transcript-live{border-color:var(--teal-l);background:#F0FAFA}
+
+/* ── AI PANEL ── */
+.ai-panel{background:linear-gradient(135deg,#F0F8F7,#E8F5F4);border:1.5px solid var(--teal-xl);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.ai-label{font-family:var(--mono);font-size:.62rem;font-weight:600;color:var(--teal-m);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.ai-label::before{content:'✦';color:var(--teal-l)}
+.ai-field{margin-bottom:8px}
+.ai-field-label{font-size:.68rem;font-weight:600;color:var(--muted);margin-bottom:2px;text-transform:uppercase;letter-spacing:.06em}
+.ai-field-value{font-size:.84rem;color:var(--ink);line-height:1.5}
+.soap-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.soap-item{background:white;border-radius:6px;padding:8px;border:1px solid var(--border)}
+.soap-letter{font-family:var(--mono);font-size:.9rem;font-weight:600;color:var(--teal-m);margin-bottom:2px}
+.soap-text{font-size:.78rem;color:var(--ink);line-height:1.4}
+
+/* ── LOADING ── */
+.loading{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.8rem}
+.dot-spin{display:inline-flex;gap:3px}
+.dot-spin span{width:5px;height:5px;border-radius:50%;background:var(--teal-l);animation:bounce .9s infinite}
+.dot-spin span:nth-child(2){animation-delay:.15s}
+.dot-spin span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+/* ── PATIENT LIST ── */
+.patient-item{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;transition:border-color .15s,background .15s}
+.patient-item:active,.patient-item.selected{border-color:var(--teal-l);background:#F0FAFA}
+.patient-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--teal-m),var(--teal-l));display:flex;align-items:center;justify-content:center;font-weight:600;color:white;font-size:.95rem;flex-shrink:0}
+.patient-info{flex:1;min-width:0}
+.patient-name{font-size:.9rem;font-weight:600;color:var(--ink)}
+.patient-meta{font-size:.73rem;color:var(--muted);margin-top:1px}
+.patient-arrow{color:var(--muted)}
+
+/* ── HISTORY TIMELINE ── */
+.timeline-item{display:flex;gap:12px;margin-bottom:14px}
+.tl-dot-col{display:flex;flex-direction:column;align-items:center}
+.tl-dot{width:10px;height:10px;border-radius:50%;background:var(--teal-l);flex-shrink:0;margin-top:4px}
+.tl-line{width:2px;background:var(--border);flex:1;margin-top:4px}
+.tl-content{flex:1;padding-bottom:6px}
+.tl-date{font-size:.68rem;color:var(--muted);font-family:var(--mono);margin-bottom:3px}
+.tl-title{font-size:.84rem;font-weight:600;color:var(--ink);margin-bottom:3px}
+.tl-body{font-size:.78rem;color:#444;line-height:1.45}
+.tl-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+
+/* ── RECEIPT / PRESCRIPTION ── */
+.rx-block{border:1.5px dashed var(--border);border-radius:8px;padding:14px;margin-bottom:10px}
+.rx-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.rx-clinic{font-size:.78rem;color:var(--muted);line-height:1.5}
+.rx-clinic strong{font-size:.88rem;color:var(--ink);display:block}
+.rx-type{font-family:var(--mono);font-size:.65rem;font-weight:600;color:white;background:var(--teal-m);padding:3px 8px;border-radius:3px}
+.rx-item{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+.rx-num{font-family:var(--mono);font-size:.72rem;font-weight:600;color:var(--teal-m);width:16px;flex-shrink:0;padding-top:1px}
+.rx-drug{font-size:.84rem;font-weight:600;color:var(--ink);margin-bottom:1px}
+.rx-posology{font-size:.78rem;color:#444}
+.rx-footer{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-end}
+.rx-sig{font-size:.72rem;color:var(--muted);text-align:center}
+.rx-sig-line{width:120px;height:1px;background:var(--border);margin:0 auto 3px}
+
+/* ── FILE UPLOAD ── */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:24px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--teal-l);background:#F0FAFA}
+.upload-zone svg{color:var(--muted);margin-bottom:8px}
+.upload-zone p{font-size:.82rem;color:var(--muted)}
+.upload-zone strong{color:var(--teal-m)}
+.file-list{margin-top:10px}
+.file-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#F8FAFA;border:1px solid var(--border);border-radius:6px;margin-bottom:6px}
+.file-icon{font-size:1.1rem}
+.file-name{font-size:.8rem;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-size{font-size:.7rem;color:var(--muted);font-family:var(--mono)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--teal);color:white;padding:10px 20px;border-radius:20px;font-size:.82rem;font-weight:500;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:white;border-radius:16px 16px 0 0;padding:20px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:14px}
+
+/* ── BOTTOM NAV (mobile) ── */
+.bottom-safe{height:env(safe-area-inset-bottom,0px)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ── UTILITIES ── */
+.flex{display:flex}.gap8{gap:8px}.gap6{gap:6px}.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+.full-btn{width:100%;padding:12px;border-radius:8px;font-size:.92rem;font-weight:600;border:none;cursor:pointer;font-family:var(--sans)}
+.full-btn.primary{background:var(--teal);color:white}
+.full-btn.secondary{background:var(--bg);border:1.5px solid var(--border);color:var(--ink)}
+.full-btn:active{opacity:.85}
+.divider{height:1px;background:var(--border);margin:14px 0}
+.empty{text-align:center;padding:32px 20px;color:var(--muted)}
+.empty svg{width:40px;height:40px;margin-bottom:10px;opacity:.35}
+.empty p{font-size:.84rem}
+.badge-count{background:var(--rose);color:white;border-radius:10px;font-size:.6rem;font-weight:700;padding:1px 5px;font-family:var(--mono)}
+
+/* ── RESPONSIVE ── */
+@media(min-width:540px){
+  #app{border-left:1px solid var(--border);border-right:1px solid var(--border)}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- HEADER -->
+  <div class="app-header">
+    <div>
+      <div class="logo">GinecoPro</div>
+      <div class="subtitle">Prontuário Digital · POC v0.1</div>
+    </div>
+    <div class="header-right">
+      <div class="patient-chip" id="headerPatient" onclick="showTab('pacientes')">Selecionar paciente</div>
+    </div>
+  </div>
+
+  <!-- NAV TABS -->
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showTab('consulta')" id="tab-consulta">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6M9 8h6M9 16h4"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
+      Consulta
+    </div>
+    <div class="nav-tab" onclick="showTab('pacientes')" id="tab-pacientes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4"/><circle cx="17" cy="17" r="4"/><path d="M15 17h4M17 15v4"/></svg>
+      Pacientes
+    </div>
+    <div class="nav-tab" onclick="showTab('historico')" id="tab-historico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+      Histórico
+    </div>
+    <div class="nav-tab" onclick="showTab('receita')" id="tab-receita">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+      Receita
+    </div>
+    <div class="nav-tab" onclick="showTab('exames')" id="tab-exames">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
+      Exames
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ CONSULTA ═══════ -->
+  <div class="screen active" id="screen-consulta">
+
+    <!-- Recording Widget -->
+    <div class="rec-widget">
+      <div class="rec-btn" id="recBtn" onclick="toggleRecording()">
+        <svg id="recIcon" viewBox="0 0 24 24" fill="white"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" stroke="white" stroke-width="2" fill="none"/></svg>
+      </div>
+      <div class="rec-status" id="recStatus">Toque para gravar a anamnese</div>
+      <div class="rec-time" id="recTime">0:00</div>
+      <div class="rec-hint" id="recHint">Web Speech API · gratuito · funciona no Chrome</div>
+    </div>
+
+    <!-- Transcript -->
+    <div class="sec-head">
+      <span class="sec-title">Transcrição</span>
+      <div class="flex gap8">
+        <button class="btn-sm outline" onclick="clearTranscript()">Limpar</button>
+        <button class="btn-sm" onclick="analyzeWithAI()">✦ Analisar com IA</button>
+      </div>
+    </div>
+    <div class="transcript-box" id="transcriptBox">
+      <span class="placeholder">A transcrição do áudio aparecerá aqui em tempo real...</span>
+    </div>
+
+    <!-- Notes -->
+    <div class="sec-head mt8">
+      <span class="sec-title">Anotações da médica</span>
+    </div>
+    <textarea class="input-field" id="doctorNotes" placeholder="Observações, achados ao exame físico, impressão clínica..." rows="3"></textarea>
+
+    <!-- AI Panel -->
+    <div id="aiPanel" style="display:none">
+      <div class="sec-head mt8">
+        <span class="sec-title">Estruturação IA</span>
+        <button class="btn-sm outline" onclick="document.getElementById('aiPanel').style.display='none'">×</button>
+      </div>
+      <div class="ai-panel">
+        <div class="ai-label">Análise Automática</div>
+        <div id="aiLoading" class="loading" style="display:none">
+          <div class="dot-spin"><span></span><span></span><span></span></div>
+          Processando com Claude...
+        </div>
+        <div id="aiContent"></div>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="flex gap8 mt12">
+      <button class="full-btn secondary" style="flex:1" onclick="showTab('exames')">📎 Exames</button>
+      <button class="full-btn primary" style="flex:1" onclick="saveConsulta()">💾 Salvar consulta</button>
+    </div>
+    <div class="bottom-safe"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ PACIENTES ═══════ -->
+  <div class="screen" id="screen-pacientes">
+    <div class="sec-head">
+      <span class="sec-title">Pacientes</span>
+      <button class="btn-sm" onclick="openNewPatient()">+ Nova</button>
+    </div>
+
+    <!-- Search -->
+    <input class="input-field" type="search" placeholder="Buscar paciente..." id="patientSearch" oninput="filterPatients(this.value)" style="margin-bottom:12px">
+
+    <div id="patientList"></div>
+    <div class="bottom-safe"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ HISTÓRICO ═══════ -->
+  <div class="screen" id="screen-historico">
+    <div class="sec-head">
+      <span class="sec-title" id="histTitle">Histórico clínico</span>
+    </div>
+    <div id="histContent">
+      <div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+        <p>Selecione uma paciente para ver o histórico</p>
+      </div>
+    </div>
+    <div class="bottom-safe"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ RECEITA ═══════ -->
+  <div class="screen" id="screen-receita">
+    <div class="sec-head">
+      <span class="sec-title">Nova receita</span>
+      <button class="btn-sm" onclick="addMedItem()">+ Medicamento</button>
+    </div>
+
+    <div class="input-row">
+      <div class="input-group">
+        <label class="input-label">Tipo</label>
+        <select class="input-field" id="rxType">
+          <option>Receita Simples</option>
+          <option>Receita Especial Branca</option>
+          <option>Receita Azul (C2)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Data</label>
+        <input type="date" class="input-field" id="rxDate">
+      </div>
+    </div>
+
+    <div id="medItems"></div>
+
+    <div class="divider"></div>
+
+    <div class="sec-head">
+      <span class="sec-title">Pré-visualização</span>
+      <button class="btn-sm green" onclick="printRx()">🖨 Imprimir</button>
+    </div>
+    <div id="rxPreview"></div>
+
+    <button class="full-btn secondary mt12" onclick="aiSuggestMeds()">✦ Sugerir medicamentos com IA</button>
+    <div class="bottom-safe"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ EXAMES ═══════ -->
+  <div class="screen" id="screen-exames">
+    <div class="sec-head">
+      <span class="sec-title">Exames e arquivos</span>
+    </div>
+
+    <!-- Upload zone -->
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="handleDrag(event)" ondrop="handleDrop(event)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <p><strong>Toque para enviar</strong> laudos, exames, imagens</p>
+      <p>ou arraste e solte aqui</p>
+    </div>
+    <input type="file" id="fileInput" style="display:none" multiple accept="image/*,.pdf,.jpg,.png" onchange="handleFiles(this.files)">
+
+    <!-- Camera button (mobile) -->
+    <button class="full-btn secondary mt8" onclick="openCamera()">📷 Fotografar laudo com câmera</button>
+    <input type="file" id="cameraInput" style="display:none" accept="image/*" capture="environment" onchange="handleFiles(this.files)">
+
+    <div class="divider"></div>
+    <div class="sec-head">
+      <span class="sec-title">Arquivos desta consulta</span>
+    </div>
+    <div id="fileList">
+      <div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8"/></svg>
+        <p>Nenhum arquivo enviado ainda</p>
+      </div>
+    </div>
+
+    <div id="ocrPanel" style="display:none" class="mt12">
+      <div class="sec-head">
+        <span class="sec-title">Texto extraído (OCR simulado)</span>
+      </div>
+      <div class="transcript-box" id="ocrText"></div>
+      <button class="btn-sm mt8" onclick="analyzeExamWithAI()">✦ Interpretar com IA</button>
+      <div id="examAiPanel" class="ai-panel mt8" style="display:none">
+        <div class="ai-label">Interpretação do exame</div>
+        <div id="examAiContent"></div>
+      </div>
+    </div>
+    <div class="bottom-safe"></div>
+  </div>
+</div>
+
+<!-- MODAL: Nova Paciente -->
+<div class="modal-bg" id="newPatientModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nova Paciente</div>
+    <div class="input-group">
+      <label class="input-label">Nome completo *</label>
+      <input class="input-field" id="newName" placeholder="Maria da Silva">
+    </div>
+    <div class="input-row">
+      <div class="input-group">
+        <label class="input-label">Data de nascimento *</label>
+        <input type="date" class="input-field" id="newDob">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Celular</label>
+        <input class="input-field" id="newPhone" placeholder="(11) 99999-9999">
+      </div>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Queixa principal / Motivo da consulta</label>
+      <input class="input-field" id="newChief" placeholder="Ex: Atraso menstrual, dor pélvica...">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Alergias conhecidas</label>
+      <input class="input-field" id="newAllergies" placeholder="Ex: Penicilina, dipirona...">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Gesta / Para / Aborto</label>
+      <input class="input-field" id="newObsHist" placeholder="Ex: G2P1A0">
+    </div>
+    <div class="flex gap8 mt12">
+      <button class="full-btn secondary" style="flex:1" onclick="closeModal('newPatientModal')">Cancelar</button>
+      <button class="full-btn primary" style="flex:1" onclick="savePatient()">Cadastrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Med Item -->
+<div class="modal-bg" id="medModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Adicionar medicamento</div>
+    <div class="input-group">
+      <label class="input-label">Medicamento *</label>
+      <input class="input-field" id="medName" placeholder="Ex: Amoxicilina 500mg">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Posologia *</label>
+      <input class="input-field" id="medDose" placeholder="Ex: 1 cápsula de 8 em 8 horas por 7 dias">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Quantidade</label>
+      <input class="input-field" id="medQty" placeholder="Ex: 21 cápsulas">
+    </div>
+    <div class="flex gap8 mt12">
+      <button class="full-btn secondary" style="flex:1" onclick="closeModal('medModal')">Cancelar</button>
+      <button class="full-btn primary" style="flex:1" onclick="saveMedItem()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  MÓDULO 0: STATE (substituir por DB real no futuro)
+// ═══════════════════════════════════════════════════════════
+const DB = {
+  patients: JSON.parse(localStorage.getItem('gp_patients') || '[]'),
+  consultations: JSON.parse(localStorage.getItem('gp_consultations') || '[]'),
+  files: JSON.parse(localStorage.getItem('gp_files') || '[]'),
+};
+
+let currentPatient = null;
+let currentMeds = [];
+let uploadedFiles = [];
+
+function saveDB() {
+  localStorage.setItem('gp_patients', JSON.stringify(DB.patients));
+  localStorage.setItem('gp_consultations', JSON.stringify(DB.consultations));
+  localStorage.setItem('gp_files', JSON.stringify(DB.files));
+}
+
+// Seed demo patient if empty
+if (DB.patients.length === 0) {
+  DB.patients = [
+    { id: 'p1', name: 'Ana Beatriz Costa', dob: '1985-03-12', phone: '(11) 98877-6655', chief: 'Consulta de rotina', allergies: 'Nenhuma conhecida', obsHist: 'G2P2A0', createdAt: '2024-01-10' },
+    { id: 'p2', name: 'Claudia Mendes', dob: '1992-07-25', phone: '(11) 91234-5678', chief: 'Irregularidade menstrual', allergies: 'Dipirona', obsHist: 'G0P0A0', createdAt: '2024-02-15' },
+  ];
+  DB.consultations = [
+    { id:'c1', patientId:'p1', date:'2024-03-10', soap:{ s:'Paciente refere dor abdominal leve há 3 dias, ciclo irregular', o:'PA 120/80, abdomen flácido, indolor à palpação', a:'Irregularidade menstrual. Hipótese: SOP', p:'Solicitado USG pélvico. Retorno em 30 dias.' }, notes:'Paciente ansiosa', cid:'N91.2', transcript:'...', files:[] },
+    { id:'c2', patientId:'p1', date:'2024-05-20', soap:{ s:'Retorno com resultado de USG. Sem queixas novas.', o:'PA 118/76, exame ginecológico normal', a:'SOP confirmado', p:'Iniciar anticoncepcional. ACO por 3 meses.' }, notes:'', cid:'E28.2', transcript:'', files:[] },
+  ];
+  saveDB();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MÓDULO 1: NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function showTab(tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + tab).classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'pacientes') renderPatients();
+  if (tab === 'historico') renderHistory();
+  if (tab === 'receita') { initRxDate(); renderRxPreview(); }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MÓDULO 2: RECORDING (Web Speech API — gratuito)
+// ═══════════════════════════════════════════════════════════
+let recognition = null;
+let isRecording = false;
+let recInterval = null;
+let recSeconds = 0;
+let fullTranscript = '';
+
+function initSpeech() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  const r = new SR();
+  r.lang = 'pt-BR';
+  r.continuous = true;
+  r.interimResults = true;
+  r.maxAlternatives = 1;
+  r.onresult = (e) => {
+    let interim = '';
+    let final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) final += t + ' ';
+      else interim += t;
+    }
+    if (final) fullTranscript += final;
+    showTranscript(fullTranscript + (interim ? '<em style="color:#888">' + interim + '</em>' : ''));
+  };
+  r.onerror = (e) => {
+    if (e.error === 'not-allowed') {
+      showToast('⚠️ Permita o acesso ao microfone');
+      stopRecording();
+    }
+  };
+  r.onend = () => { if (isRecording) r.start(); };
+  return r;
+}
+
+function toggleRecording() {
+  if (!isRecording) startRecording(); else stopRecording();
+}
+
+function startRecording() {
+  recognition = initSpeech();
+  if (!recognition) {
+    showToast('⚠️ Use Chrome para transcrição de voz');
+    // fallback: allow manual typing
+    return;
+  }
+  recognition.start();
+  isRecording = true;
+  recSeconds = 0;
+  const btn = document.getElementById('recBtn');
+  btn.classList.add('recording');
+  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="white" width="28" height="28"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>`;
+  document.getElementById('recStatus').textContent = 'Gravando...';
+  document.getElementById('recHint').textContent = 'Fale normalmente • Toque para parar';
+  const box = document.getElementById('transcriptBox');
+  box.classList.add('transcript-live');
+  if (!fullTranscript) box.innerHTML = '<span class="placeholder">Ouvindo...</span>';
+  recInterval = setInterval(() => {
+    recSeconds++;
+    const m = Math.floor(recSeconds / 60);
+    const s = recSeconds % 60;
+    document.getElementById('recTime').textContent = m + ':' + String(s).padStart(2,'0');
+  }, 1000);
+}
+
+function stopRecording() {
+  if (recognition) { recognition.stop(); recognition = null; }
+  isRecording = false;
+  clearInterval(recInterval);
+  const btn = document.getElementById('recBtn');
+  btn.classList.remove('recording');
+  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="white"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" stroke="white" stroke-width="2" fill="none"/></svg>`;
+  document.getElementById('recStatus').textContent = 'Gravação concluída';
+  document.getElementById('recHint').textContent = 'Toque para gravar novamente';
+  document.getElementById('transcriptBox').classList.remove('transcript-live');
+  if (fullTranscript) showToast('✓ Transcrição salva');
+}
+
+function showTranscript(html) {
+  const box = document.getElementById('transcriptBox');
+  box.innerHTML = html || '<span class="placeholder">Vazio</span>';
+}
+
+function clearTranscript() {
+  fullTranscript = '';
+  document.getElementById('transcriptBox').innerHTML = '<span class="placeholder">A transcrição do áudio aparecerá aqui...</span>';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MÓDULO 3: CLAUDE AI INTEGRATION
+// ═══════════════════════════════════════════════════════════
+async function callClaude(prompt, systemPrompt) {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  const data = await response.json();
+  return data.content?.[0]?.text || 'Sem resposta';
+}
+
+async function analyzeWithAI() {
+  const transcript = fullTranscript.trim();
+  const notes = document.getElementById('doctorNotes').value.trim();
+  if (!transcript && !notes) {
+    showToast('Grave ou escreva algo primeiro');
+    return;
+  }
+  const panel = document.getElementById('aiPanel');
+  panel.style.display = 'block';
+  document.getElementById('aiLoading').style.display = 'flex';
+  document.getElementById('aiContent').innerHTML = '';
+
+  const system = `Você é um assistente médico especializado em ginecologia. 
+Analise o relato da consulta e estruture em formato SOAP (Subjetivo, Objetivo, Avaliação, Plano).
+Responda SOMENTE em JSON válido, sem markdown, sem explicação, neste formato exato:
+{"S":"texto","O":"texto","A":"texto (hipótese diagnóstica + CID sugerido)","P":"texto","cid":"XXX.X","alerta":"texto ou null"}`;
+
+  const prompt = `TRANSCRIÇÃO DA ANAMNESE:\n${transcript || '(sem transcrição)'}\n\nNOTAS DA MÉDICA:\n${notes || '(sem notas)'}`;
+
+  try {
+    const raw = await callClaude(prompt, system);
+    const soap = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    document.getElementById('aiLoading').style.display = 'none';
+    document.getElementById('aiContent').innerHTML = `
+      <div class="soap-grid">
+        <div class="soap-item"><div class="soap-letter">S</div><div class="soap-text">${soap.S}</div></div>
+        <div class="soap-item"><div class="soap-letter">O</div><div class="soap-text">${soap.O}</div></div>
+        <div class="soap-item"><div class="soap-letter">A</div><div class="soap-text">${soap.A}</div></div>
+        <div class="soap-item"><div class="soap-letter">P</div><div class="soap-text">${soap.P}</div></div>
+      </div>
+      ${soap.alerta ? `<div style="margin-top:10px;padding:8px 10px;background:#FEF3CD;border-radius:6px;font-size:.78rem;color:#7A5000">⚠️ ${soap.alerta}</div>` : ''}
+      <div style="margin-top:8px;display:flex;align-items:center;gap:6px">
+        <span class="card-tag tag-active">CID sugerido: ${soap.cid}</span>
+        <button class="btn-sm" onclick="applySOAP(${JSON.stringify(soap).split('"').join("'")})">Aplicar ao prontuário</button>
+      </div>`;
+    window._lastSOAP = soap;
+  } catch(e) {
+    document.getElementById('aiLoading').style.display = 'none';
+    document.getElementById('aiContent').innerHTML = '<p style="color:var(--rose);font-size:.82rem">Erro ao processar. Verifique a chave da API.</p>';
+  }
+}
+
+function applySOAP(soap) {
+  window._lastSOAP = soap;
+  showToast('✓ SOAP aplicado ao prontuário');
+}
+
+async function aiSuggestMeds() {
+  const soap = window._lastSOAP;
+  if (!soap) { showToast('Faça a análise de consulta primeiro'); return; }
+  showToast('⏳ Consultando IA...');
+  const system = `Você é um assistente médico em ginecologia. 
+Com base no diagnóstico, sugira medicamentos adequados.
+Responda SOMENTE em JSON: {"meds":[{"name":"Nome 500mg","dose":"Posologia","qty":"Quantidade"}]}`;
+  try {
+    const raw = await callClaude(`Diagnóstico: ${soap.A}\nPlano: ${soap.P}`, system);
+    const data = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    data.meds.forEach(m => {
+      currentMeds.push({ name: m.name, dose: m.dose, qty: m.qty });
+    });
+    renderMedItems();
+    renderRxPreview();
+    showTab('receita');
+    showToast('✓ Medicamentos sugeridos pela IA');
+  } catch(e) {
+    showToast('Erro na sugestão de IA');
+  }
+}
+
+async function analyzeExamWithAI() {
+  const text = document.getElementById('ocrText').textContent.trim();
+  if (!text) return;
+  const panel = document.getElementById('examAiPanel');
+  panel.style.display = 'block';
+  document.getElementById('examAiContent').innerHTML = '<div class="loading"><div class="dot-spin"><span></span><span></span><span></span></div> Interpretando...</div>';
+  const system = `Você é um médico especialista em ginecologia interpretando resultados de exames. 
+Faça uma interpretação clínica objetiva. Responda em texto limpo e estruturado em português.`;
+  try {
+    const result = await callClaude(`Resultado de exame:\n${text}`, system);
+    document.getElementById('examAiContent').innerHTML = `<div style="font-size:.82rem;line-height:1.6;color:var(--ink)">${result.replace(/\n/g,'<br>')}</div>`;
+  } catch(e) {
+    document.getElementById('examAiContent').innerHTML = '<p style="color:var(--rose);font-size:.82rem">Erro ao interpretar</p>';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MÓDULO 4: PATIENTS
+// ═══════════════════════════════════════════════════════════
+function calcAge(dob) {
+  const diff = Date.now() - new Date(dob).getTime();
+  return Math.floor(diff / 31557600000);
+}
+function initials(name) {
+  return name.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();
+}
+
+function renderPatients(filter = '') {
+  const list = document.getElementById('patientList');
+  const pts = DB.patients.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
+  if (pts.length === 0) {
+    list.innerHTML = '<div class="empty"><p>Nenhuma paciente encontrada</p></div>';
+    return;
+  }
+  list.innerHTML = pts.map(p => `
+    <div class="patient-item ${currentPatient?.id === p.id ? 'selected' : ''}" onclick="selectPatient('${p.id}')">
+      <div class="patient-avatar">${initials(p.name)}</div>
+      <div class="patient-info">
+        <div class="patient-name">${p.name}</div>
+        <div class="patient-meta">${calcAge(p.dob)} anos · ${p.phone || '—'} · ${p.obsHist || '—'}</div>
+        ${p.allergies && p.allergies !== 'Nenhuma conhecida' ? `<span class="card-tag tag-rose">⚠ ${p.allergies}</span>` : ''}
+      </div>
+      <svg class="patient-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+    </div>`).join('');
+}
+
+function filterPatients(v) { renderPatients(v); }
+
+function selectPatient(id) {
+  currentPatient = DB.patients.find(p => p.id === id);
+  document.getElementById('headerPatient').textContent = currentPatient.name.split(' ')[0];
+  renderPatients();
+  showTab('historico');
+  showToast('✓ Paciente: ' + currentPatient.name.split(' ')[0]);
+}
+
+function openNewPatient() {
+  document.getElementById('newPatientModal').classList.add('open');
+}
+
+function savePatient() {
+  const name = document.getElementById('newName').value.trim();
+  const dob = document.getElementById('newDob').value;
+  if (!name || !dob) { showToast('Nome e data são obrigatórios'); return; }
+  const p = {
+    id: 'p' + Date.now(),
+    name,
+    dob,
+    phone: document.getElementById('newPhone').value,
+    chief: document.getElementById('newChief').value,
+    allergies: document.getElementById('newAllergies').value || 'Nenhuma conhecida',
+    obsHist: document.getElementById('newObsHist').value,
+    createdAt: new Date().toISOString().split('T')[0]
+  };
+  DB.patients.unshift(p);
+  saveDB();
+  closeModal('newPatientModal');
+  ['newName','newDob','newPhone','newChief','newAllergies','newObsHist'].forEach(id => document.getElementById(id).value = '');
+  selectPatient(p.id);
+  showToast('✓ Paciente cadastrada');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MÓDULO 5: HISTORY
+// ═══════════════════════════════════════════════════════════
+function renderHistory() {
+  const content = document.getElementById('histContent');
+  const title = document.getElementById('histTitle');
+  if (!currentPatient) {
+    title.textContent = 'Histórico clínico';
+    content.innerHTML = '<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg><p>Selecione uma paciente para ver o histórico</p></div>';
+    return;
+  }
+  title.textContent = currentPatient.name.split(' ')[0];
+  const cons = DB.consultations.filter(c => c.patientId === currentPatient.id).sort((a,b) => new Date(b.date)-new Date(a.date));
+
+  // Patient summary card
+  let html = `<div class="card" style="border-top:3px solid var(--teal-l);margin-bottom:16px">
+    <div class="card-row">
+      <div>
+        <div class="card-title">${currentPatient.name}</div>
+        <div class="card-sub">${calcAge(currentPatient.dob)} anos · ${new Date(currentPatient.dob).toLocaleDateString('pt-BR')}</div>
+      </div>
+      <span class="card-tag tag-active">${currentPatient.obsHist || 'G0P0'}</span>
+    </div>
+    <div class="divider"></div>
+    <div style="font-size:.78rem;color:#444;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      <div><strong style="color:var(--muted)">Celular</strong><br>${currentPatient.phone || '—'}</div>
+      <div><strong style="color:var(--muted)">Alergias</strong><br><span style="color:${currentPatient.allergies !== 'Nenhuma conhecida' ? 'var(--rose)' : 'inherit'}">${currentPatient.allergies}</span></div>
+    </div>
+    <div class="mt8" style="font-size:.78rem">
+      <button class="btn-sm" onclick="showTab('consulta')">+ Nova consulta</button>
+    </div>
+  </div>`;
+
+  if (cons.length === 0) {
+    html += '<div class="empty"><p>Nenhuma consulta registrada</p></div>';
+  } else {
+    html += '<div class="sec-head"><span class="sec-title">Consultas</span></div>';
+    html += cons.map((c, i) => `
+      <div class="timeline-item">
+        <div class="tl-dot-col">
+          <div class="tl-dot"></div>
+          ${i < cons.length-1 ? '<div class="tl-line"></div>' : ''}
+        </div>
+        <div class="tl-content">
+          <div class="tl-date">${new Date(c.date).toLocaleDateString('pt-BR')}</div>
+          <div class="card" style="margin-bottom:4px">
+            <div class="tl-title">Consulta · CID ${c.cid}</div>
+            ${c.soap ? `
+            <div class="soap-grid" style="margin-top:8px">
+              <div class="soap-item"><div class="soap-letter">S</div><div class="soap-text">${c.soap.s}</div></div>
+              <div class="soap-item"><div class="soap-letter">A</div><div class="soap-text">${c.soap.a}</div></div>
+            </div>
+            <div class="soap-item" style="margin-top:6px"><div class="soap-letter">P</div><div class="soap-text">${c.soap.p}</div></div>
+            ` : ''}
+          </div>
+        </div>
+      </div>`).join('');
+  }
+  content.innerHTML = html;
+}
+
+function saveConsulta() {
+  if (!currentPatient) { showToast('Selecione uma paciente primeiro'); return; }
+  const soap = window._lastSOAP;
+  const c = {
+    id: 'c' + Date.now(),
+    patientId: currentPatient.id,
+    date: new Date().toISOString().split('T')[0],
+    transcript: fullTranscript,
+    notes: document.getElementById('doctorNotes').value,
+    soap: soap ? { s: soap.S, o: soap.O, a: soap.A, p: soap.P } : { s: fullTranscript, o: document.getElementById('doctorNotes').value, a: '', p: '' },
+    cid: soap?.cid || 'Z01.4',
+    files: uploadedFiles.map(f => f.name)
+  };
+  DB.consultations.unshift(c);
+  saveDB();
+  // Reset
+  fullTranscript = '';
+  clearTranscript();
+  document.getElementById('doctorNotes').value = '';
+  document.getElementById('aiPanel').style.display = 'none';
+  window._lastSOAP = null;
+  uploadedFiles = [];
+  renderFileList();
+  showToast('✓ Consulta salva no histórico');
+  setTimeout(() => showTab('historico'), 800);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MÓDULO 6: RECEITA
+// ═══════════════════════════════════════════════════════════
+function initRxDate() {
+  const d = document.getElementById('rxDate');
+  if (!d.value) d.value = new Date().toISOString().split('T')[0];
+}
+
+function addMedItem() {
+  document.getElementById('medModal').classList.add('open');
+}
+
+function saveMedItem() {
+  const name = document.getElementById('medName').value.trim();
+  const dose = document.getElementById('medDose').value.trim();
+  if (!name || !dose) { showToast('Preencha medicamento e posologia'); return; }
+  currentMeds.push({ name, dose, qty: document.getElementById('medQty').value });
+  ['medName','medDose','medQty'].forEach(id => document.getElementById(id).value = '');
+  closeModal('medModal');
+  renderMedItems();
+  renderRxPreview();
+}
+
+function renderMedItems() {
+  const el = document.getElementById('medItems');
+  el.innerHTML = currentMeds.map((m, i) => `
+    <div class="card" style="margin-bottom:8px">
+      <div class="card-row">
+        <div>
+          <div class="card-title">${m.name}</div>
+          <div class="card-sub">${m.dose}</div>
+          ${m.qty ? `<div class="card-sub">${m.qty}</div>` : ''}
+        </div>
+        <button class="btn-sm rose" onclick="removeMed(${i})">×</button>
+      </div>
+    </div>`).join('') || '';
+}
+
+function removeMed(i) {
+  currentMeds.splice(i, 1);
+  renderMedItems();
+  renderRxPreview();
+}
+
+function renderRxPreview() {
+  const el = document.getElementById('rxPreview');
+  const patient = currentPatient;
+  const date = document.getElementById('rxDate')?.value || new Date().toISOString().split('T')[0];
+  const type = document.getElementById('rxType')?.value || 'Receita Simples';
+  if (currentMeds.length === 0) {
+    el.innerHTML = '<div class="empty"><p>Adicione medicamentos para pré-visualizar</p></div>';
+    return;
+  }
+  el.innerHTML = `<div class="rx-block">
+    <div class="rx-header">
+      <div class="rx-clinic">
+        <strong>Consultório GinecoPro</strong>
+        Dra. [Nome da Médica]<br>
+        CRM: 00000/SP · RQE: 00000
+      </div>
+      <span class="rx-type">${type}</span>
+    </div>
+    ${patient ? `<div style="font-size:.78rem;margin-bottom:10px;color:#444"><strong>Paciente:</strong> ${patient.name} · ${calcAge(patient.dob)} anos</div>` : ''}
+    ${currentMeds.map((m,i) => `
+      <div class="rx-item">
+        <div class="rx-num">${i+1}.</div>
+        <div>
+          <div class="rx-drug">${m.name}</div>
+          <div class="rx-posology">${m.dose}${m.qty ? ' · ' + m.qty : ''}</div>
+        </div>
+      </div>`).join('')}
+    <div class="rx-footer">
+      <div class="rx-sig">
+        <div class="rx-sig-line"></div>
+        Assinatura e carimbo
+      </div>
+      <div style="font-size:.72rem;color:var(--muted);text-align:right">
+        ${new Date(date).toLocaleDateString('pt-BR')}<br>
+        Válida por 30 dias
+      </div>
+    </div>
+  </div>`;
+}
+
+function printRx() {
+  if (currentMeds.length === 0) { showToast('Adicione ao menos um medicamento'); return; }
+  const preview = document.getElementById('rxPreview').innerHTML;
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receita</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+    body{font-family:Inter,sans-serif;max-width:580px;margin:40px auto;padding:24px;color:#1A1F1F;font-size:14px}
+    .rx-block{border:1px solid #ddd;border-radius:8px;padding:20px}
+    .rx-header{display:flex;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #eee}
+    .rx-item{margin-bottom:10px;display:flex;gap:10px}
+    .rx-num{font-weight:600;color:#1A6B65;width:16px}
+    .rx-drug{font-weight:600}
+    .rx-posology{color:#555;font-size:13px}
+    .rx-footer{margin-top:16px;padding-top:12px;border-top:1px solid #eee;display:flex;justify-content:space-between}
+    .sig-line{width:140px;height:1px;background:#ccc;margin-bottom:4px}
+    .muted{color:#888;font-size:12px}
+    @media print{body{margin:0}}
+  </style></head><body>${preview}<script>window.print();<\/script></body></html>`);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MÓDULO 7: FILE UPLOAD
+// ═══════════════════════════════════════════════════════════
+function handleDrag(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('drag'); }
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+  handleFiles(e.dataTransfer.files);
+}
+
+function openCamera() {
+  document.getElementById('cameraInput').click();
+}
+
+function handleFiles(files) {
+  Array.from(files).forEach(f => {
+    const entry = { name: f.name, size: f.size, type: f.type, date: new Date().toISOString() };
+    uploadedFiles.push(entry);
+    // Simulate OCR for images
+    if (f.type.startsWith('image/')) {
+      simulateOCR(f, entry);
+    }
+  });
+  renderFileList();
+  showToast('✓ ' + files.length + ' arquivo(s) adicionado(s)');
+}
+
+function simulateOCR(file, entry) {
+  // In POC: show OCR panel with placeholder — replace with Document AI in prod
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    entry.dataUrl = e.target.result;
+    // Simulated OCR extraction (replace with real OCR API)
+    entry.ocrText = '[POC] Texto extraído via Web OCR API (Tesseract.js ou Google Document AI em produção).\n\nExame: Ultrassonografia Pélvica\nData: ' + new Date().toLocaleDateString('pt-BR') + '\nAchados: útero em anteversoflexão, medindo 7,2 x 4,8 x 3,6 cm. Endométrio: 6mm. Ovário D: 3,2 x 2,1 cm, com 3-4 folículos antrais. Ovário E: 2,8 x 1,9 cm.\nConclusão: Exame dentro dos limites da normalidade.';
+    showOCRPanel(entry.ocrText);
+    renderFileList();
+  };
+  reader.readAsDataURL(file);
+}
+
+function showOCRPanel(text) {
+  document.getElementById('ocrPanel').style.display = 'block';
+  document.getElementById('ocrText').textContent = text;
+}
+
+function renderFileList() {
+  const el = document.getElementById('fileList');
+  if (uploadedFiles.length === 0) {
+    el.innerHTML = '<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/></svg><p>Nenhum arquivo ainda</p></div>';
+    return;
+  }
+  el.innerHTML = uploadedFiles.map((f, i) => `
+    <div class="file-item">
+      <div class="file-icon">${f.type?.startsWith('image/') ? '🖼' : '📄'}</div>
+      <div class="file-name">${f.name}</div>
+      <div class="file-size">${(f.size/1024).toFixed(0)}KB</div>
+      <button onclick="removeFile(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem">×</button>
+    </div>`).join('');
+}
+
+function removeFile(i) { uploadedFiles.splice(i, 1); renderFileList(); }
+
+// ═══════════════════════════════════════════════════════════
+//  MÓDULO 8: UI HELPERS
+// ═══════════════════════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-bg').forEach(m => {
+  m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('open'); });
+});
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════
+renderPatients();
+initRxDate();
+renderRxPreview();
+renderFileList();
+</script>
+</body>
+</html>
